@@ -7,7 +7,8 @@ from tqdm import tqdm
 
 def train_autoencoder(autoencoder, dataloader, input_size, epochs=5):
     criterion = nn.MSELoss()
-    optimizer = optim.Adam(autoencoder.parameters(), lr=0.001)
+    optimizer = optim.SGD(autoencoder.parameters(), lr=0.01, momentum=0.9)
+    #optimizer = optim.Adam(autoencoder.parameters(), lr=0.001)
     autoencoder.train()
     for epoch in range(epochs):
         print(f"Autoencoder training: Epoch {epoch+1}/{epochs}")
@@ -56,7 +57,8 @@ def greedy_layerwise_pretraining(train_loader):
 
 def supervised_training(model, train_loader, test_loader):
     criterion = nn.CrossEntropyLoss()
-    optimizer = optim.Adam(model.parameters(), lr=0.001)
+    optimizer = optim.SGD(model.parameters(), lr=0.01, momentum=0.9)
+    #optimizer = optim.Adam(model.parameters(), lr=0.001)
 
     model.train()
     for epoch in range(5):
@@ -78,6 +80,7 @@ def supervised_training(model, train_loader, test_loader):
             correct += pred.eq(target.view_as(pred)).sum().item()
     accuracy = 100. * correct / len(test_loader.dataset)
     print(f'Test set: Accuracy: {correct}/{len(test_loader.dataset)} ({accuracy:.2f}%)')
+    return accuracy
 
 
 def train_baseline_model(train_loader, test_loader):
@@ -86,7 +89,8 @@ def train_baseline_model(train_loader, test_loader):
 
     # Define loss and optimizer
     criterion = nn.CrossEntropyLoss()
-    optimizer = optim.Adam(baseline_model.parameters(), lr=0.001)
+    optimizer = optim.SGD(baseline_model.parameters(), lr=0.01, momentum=0.9)
+    #optimizer = optim.Adam(baseline_model.parameters(), lr=0.001)
 
     # Standard supervised training loop
     baseline_model.train()

@@ -21,11 +21,11 @@ class SimpleNN(nn.Module):
 
     def forward(self, x):
         x = torch.flatten(x, 1)  # Should result in (batch_size, 784)
-        print("Shape after flatten:", x.shape)
+        # print("Shape after flatten:", x.shape)
         x = torch.relu(self.layer1(x))
-        print("Shape after layer1:", x.shape)
+        # print("Shape after layer1:", x.shape)
         x = torch.relu(self.layer2(x))
-        print("Shape after layer2:", x.shape)
+        # print("Shape after layer2:", x.shape)
         x = self.output(x)
-        print("Shape after output:", x.shape)
+        # print("Shape after output:", x.shape)
         return x

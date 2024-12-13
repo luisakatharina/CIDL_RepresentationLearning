@@ -14,7 +14,7 @@ def main():
     baseline_accuracy = train_baseline_model(train_loader, test_loader)
     step_2_time = time()
     print("Step 2: Baseline training time = {:.2f} seconds".format(step_2_time - step_1_time))
-    
+
     # Greedy layer-wise unsupervised pretraining
     pretrained_model = greedy_layerwise_pretraining(train_loader)
     step_3_time = time()
@@ -29,6 +29,8 @@ def main():
     visualize_weights(pretrained_model, layer_index=1)
 
     # Compare performances
+    if pretrained_accuracy is None or baseline_accuracy is None:
+        raise ValueError("Both pretrained_accuracy and baseline_accuracy must be provided and not None.")
     plot_model_performance(pretrained_accuracy, baseline_accuracy)
 
     # Total time
