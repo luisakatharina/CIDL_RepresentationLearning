@@ -33,11 +33,11 @@ To use the code in this repository, you need to clone the repo and install the n
 Run the following command in your terminal:
 ```bash
 git clone https://github.com/your-username/your-repository-name.git
-cd your-repository-name
+cd your-repository-name ```
 
 Install the necessary packages using the environment.yml file:
-conda env create -f environment.yml
-conda activate myenv
+```conda env create -f environment.yml
+conda activate myenv```
 
 
 ## **Usage**
