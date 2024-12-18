@@ -8,7 +8,7 @@ class Autoencoder(nn.Module):
         self.decoder = nn.Linear(hidden_dim, input_dim)
 
     def forward(self, x):
-        encoded = torch.relu(self.encoder(x))
+        encoded = torch.sigmoid(self.encoder(x))
         decoded = self.decoder(encoded)
         return decoded, encoded
 
@@ -21,7 +21,7 @@ class SimpleNN(nn.Module):
 
     def forward(self, x):
         x = torch.flatten(x, 1)  # Should result in (batch_size, 784)
-        x = torch.relu(self.layer1(x))
-        x = torch.relu(self.layer2(x))
+        x = torch.sigmoid(self.layer1(x))
+        x = torch.sigmoid(self.layer2(x))
         x = self.output(x)
         return x

@@ -182,10 +182,9 @@ def train_baseline_model(train_loader, test_loader):
     baseline_model.train()
     for epoch in range(5):
         start_time = time()  # Start time for epoch
-        print(f" Baseline training: Epoch {epoch+1}/5")
-
+        progress_bar = tqdm(train_loader, desc=f" Baseline training: Epoch {epoch+1}/5", leave=True)
         # Use tqdm to display the progress of the batches
-        for data, target in tqdm(train_loader, desc=f" Training epoch {epoch+1}/5"):
+        for data, target in progress_bar:
             optimizer.zero_grad()
             output = baseline_model(data)
             loss = criterion(output, target)
@@ -194,6 +193,7 @@ def train_baseline_model(train_loader, test_loader):
             
             # Track the loss for this batch
             baseline_losses.append(loss.item())
+            progress_bar.set_description(f" Baseline training: Epoch {epoch+1}/5, Loss: {loss.item():.4f}")
 
         epoch_time = time() - start_time  # Calculate time for this epoch
         baseline_times.append(epoch_time)  # Store training time for the epoch

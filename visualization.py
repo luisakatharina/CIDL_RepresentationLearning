@@ -1,7 +1,15 @@
 import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
 import torch
 import seaborn as sns
 from sklearn.metrics import confusion_matrix
+
+def convert_seconds_to_mmss(seconds):
+    minutes = int(seconds // 60)
+    seconds = int(seconds % 60)
+    milliseconds = int((seconds % 1) * 1000)  # Extract milliseconds
+    return "{:02}:{:02}:{:03}".format(minutes, seconds, milliseconds)
 
 def visualize_weights(model, layer_index=1, n_w=8, n_h=4):
     """Visualizes weights of the model for the specified layer."""
@@ -123,3 +131,121 @@ def plot_weight_differences(baseline_weights, final_weights):
         plt.ylabel('Frequency')
         plt.title(f'Distribution of Weight Differences (Layer {layer})')
         plt.show()
+
+def calculate_digit_accuracies(preds, true_labels):
+    """
+    Calculate per-digit accuracies for a given set of predictions and ground truth labels.
+    
+    Args:
+    - preds (list or array): List of predicted labels.
+    - true_labels (list or array): List of ground-truth labels.
+    
+    Returns:
+    - List of accuracies (percentage) for each digit from 0 to 9.
+    """
+    correct_per_digit = {i: 0 for i in range(10)}
+    total_per_digit = {i: 0 for i in range(10)}
+
+    for pred, true in zip(preds, true_labels):
+        total_per_digit[true] += 1
+        if pred == true:
+            correct_per_digit[true] += 1
+
+    accuracies = {i: (correct_per_digit[i] / total_per_digit[i] * 100) if total_per_digit[i] > 0 else 0 
+                  for i in range(10)}
+    return list(accuracies.values())
+
+def generate_comparison_table(
+    baseline_accuracy, final_accuracy, 
+    baseline_preds, final_preds, 
+    true_labels, baseline_losses, final_losses, 
+    baseline_training_time, supervised_training_time
+    ):
+    """
+    Generate a comparison table between baseline and supervised models.
+    
+    Args:
+    - baseline_accuracy (float): Final overall accuracy for the baseline model.
+    - final_accuracy (float): Final overall accuracy for the supervised model.
+    - baseline_preds (list or array): List of predictions for the baseline model.
+    - final_preds (list or array): List of predictions for the supervised model.
+    - true_labels (list or array): List of ground-truth labels.
+    - baseline_losses (list): List of training losses for the baseline model.
+    - final_losses (list): List of training losses for the supervised model.
+    - baseline_training_time (float): Total training time for the baseline model.
+    - supervised_training_time (float): Total training time for the supervised model.
+    
+    Returns:
+    - DataFrame: Pandas DataFrame containing the comparison table.
+    """
+    
+    # 1️⃣ Per-digit accuracy
+    baseline_digit_accuracies = calculate_digit_accuracies(baseline_preds, true_labels)
+    supervised_digit_accuracies = calculate_digit_accuracies(final_preds, true_labels)
+    
+    # 2️⃣ Accuracy statistics (mean, std, min, max)
+    baseline_mean_accuracy = np.mean(baseline_digit_accuracies)
+    supervised_mean_accuracy = np.mean(supervised_digit_accuracies)
+
+    baseline_std = np.std(baseline_digit_accuracies)
+    supervised_std = np.std(supervised_digit_accuracies)
+
+    baseline_min, baseline_max = min(baseline_digit_accuracies), max(baseline_digit_accuracies)
+    supervised_min, supervised_max = min(supervised_digit_accuracies), max(supervised_digit_accuracies)
+
+    # 3️⃣ Final loss (last recorded loss for each model)
+    baseline_final_loss = baseline_losses[-1] if baseline_losses else 0
+    supervised_final_loss = final_losses[-1] if final_losses else 0
+
+    # 4️⃣ Metrics and comparison table
+    metrics = ['Overall Accuracy (%)', 'Accuracy Per Digit', 'Mean Accuracy (Digits)', 
+               'Min/Max Accuracy', 'Standard Deviation', 'Variance', 
+               'Training Time (s)', 'Loss (Final Value)']
+
+    # 5️⃣ Metric values for each model
+    baseline_values = [
+        round(baseline_accuracy * 100, 2), 
+        [round(acc, 2) for acc in baseline_digit_accuracies], 
+        round(baseline_mean_accuracy, 2), 
+        f'Min: {round(baseline_min, 2)}%, Max: {round(baseline_max, 2)}%', 
+        round(baseline_std, 2), 
+        round(baseline_std ** 2, 2), 
+        round(baseline_training_time, 2), 
+        round(baseline_final_loss, 4)
+    ]
+
+    supervised_values = [
+        round(final_accuracy * 100, 2), 
+        [round(acc, 2) for acc in supervised_digit_accuracies], 
+        round(supervised_mean_accuracy, 2), 
+        f'Min: {round(supervised_min, 2)}%, Max: {round(supervised_max, 2)}%', 
+        round(supervised_std, 2), 
+        round(supervised_std ** 2, 2), 
+        round(supervised_training_time, 2), 
+        round(supervised_final_loss, 4)
+    ]
+
+    # 6️⃣ Calculate the differences (Δ)
+    differences = [
+        round(supervised_values[0] - baseline_values[0], 2), 
+        [s - b for s, b in zip(supervised_values[1], baseline_values[1])], 
+        round(supervised_values[2] - baseline_values[2], 2), 
+        f'ΔMin: {round(supervised_min - baseline_min, 2)}%, ΔMax: {round(supervised_max - baseline_max, 2)}%', 
+        round(baseline_values[4] - supervised_values[4], 2), 
+        round(baseline_values[5] - supervised_values[5], 2), 
+        supervised_values[6] - baseline_values[6], 
+        round(baseline_values[7] - supervised_values[7], 4)
+    ]
+
+    # 7️⃣ Create the DataFrame
+    df = pd.DataFrame({
+        'Metric': metrics,
+        'Baseline Model': baseline_values,
+        'Supervised Model': supervised_values,
+        'Difference (Δ)': differences
+    })
+
+    # Display the table
+    print(df.to_markdown(index=False))
+    
+    return df
