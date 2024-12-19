@@ -1,14 +1,9 @@
 # Representation Learning: Greedy Layer-Wise Training vs Simple Neural Networks
-
 ## **Table of Contents**
-- [Overview](#-overview)
-- [Repository Structure](#-repository-structure)
-- [Setup and Installation](#️-setup-and-installation)
-- [Quick Start](#-quick-start)
-- [Usage](#-usage)
-- [Sources](#-Sources)
-- [License](#-license)
-
+- [Overview](#overview)
+- [Quick Start](#quick-start)
+- [Usage](#usage)
+- [Sources](#sources)
 ---
 
 ## **Overview**
@@ -24,43 +19,40 @@ This project compares two approaches to representation learning:
 
 The code in this repository enables you to train, visualize, and compare these two models on the **MNIST dataset**, which consists of handwritten digit images (0-9). You'll get insights into how greedy layer-wise pretraining affects the learning process, training time, and final performance.
 
-## **Repository Structure**
-
-##  **Setup and Installation**
-To use the code in this repository, you need to clone the repo and install the necessary packages.
-
+## **Quick Start**
 ### ** Clone the Repository**
 Run the following command in your terminal:
 ```bash
-git clone https://github.com/your-username/your-repository-name.git
-cd your-repository-name ```
+    git clone https://github.com/luisakatharina/CIDL_RepresentationLearning.git
+    cd CIDL_RepresentationLearning
+```
 
 Install the necessary packages using the environment.yml file:
-```conda env create -f environment.yml
-conda activate myenv```
+```bash
+    conda env create -f environment.yml
+    conda activate myenv
+```
 
 
 ## **Usage**
 This section explains how the code works and what you can expect from each step.
+- Data Loading:
+    Loads the MNIST dataset (or other datasets, if modified).
+    The dataset is split into training and test sets.
 
-    Data Loading:
-        Loads the MNIST dataset (or other datasets, if modified).
-        The dataset is split into training and test sets.
+- Training:
+    Simple Neural Network: Fully trained with supervised learning using backpropagation.
+    Greedy Layer-Wise Training: Each layer is trained one at a time in an unsupervised manner. After all layers are trained, supervised fine-tuning is applied to the whole network.
 
-    Training:
-        Simple Neural Network: Fully trained with supervised learning using backpropagation.
-        Greedy Layer-Wise Training: Each layer is trained one at a time in an unsupervised manner. After all layers are trained, supervised fine-tuning is applied to the whole network.
+- Evaluation:
+    Models are evaluated on the MNIST test set.
+    Metrics like accuracy, per-digit accuracy, training time, and loss are computed.
 
-    Evaluation:
-        Models are evaluated on the MNIST test set.
-        Metrics like accuracy, per-digit accuracy, training time, and loss are computed.
-
-    Visualization:
-        Loss Curves: Shows how loss changes during training for both models.
-        Accuracy Per Digit: Compares how each model classifies individual digits (0-9).
-        Weight Visualizations: Displays how weights change over time.
-        Confusion Matrices: Shows which digits are confused for each model.
+- Visualization:
+    Loss Curves: Shows how loss changes during training for both models.
+    Accuracy Per Digit: Compares how each model classifies individual digits (0-9).
+    Weight Visualizations: Displays how weights change over time.
+    Confusion Matrices: Shows which digits are confused for each model.
 
 ## **Sources**
-## **License**
 
