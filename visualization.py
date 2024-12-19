@@ -1,7 +1,7 @@
+# This file contains the visualization functions for the models and the training process.
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-import torch
 import seaborn as sns
 from sklearn.metrics import confusion_matrix
 

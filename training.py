@@ -1,3 +1,4 @@
+"""Training functions for the autoencoder and supervised models."""
 import torch
 import torch.optim as optim
 import torch.nn as nn
@@ -7,7 +8,15 @@ from tqdm import tqdm
 from time import time
 
 def train_autoencoder(autoencoder, dataloader, input_size, layer, epochs=5):
-    """Train an individual autoencoder layer."""
+    """
+    Train an individual autoencoder layer.
+    @param autoencoder: The autoencoder model to train
+    @param dataloader: The DataLoader object for the training data
+    @param input_size: The size of the input data
+    @param layer: The layer number for the autoencoder
+    @param epochs: The number of epochs to train
+    @return: The losses, times, and weights for each epoch
+    """
     criterion = nn.MSELoss()
     optimizer = optim.SGD(autoencoder.parameters(), lr=0.01, momentum=0.9)
     
@@ -44,7 +53,12 @@ def train_autoencoder(autoencoder, dataloader, input_size, layer, epochs=5):
 
 
 def greedy_layerwise_pretraining(train_loader, test_loader):
-    """ Greedy layer-wise training of two autoencoders."""
+    """
+    Greedy layer-wise training of two autoencoders.
+    @param train_loader: DataLoader for the training set
+    @param test_loader: DataLoader for the test set
+    @return: The pretrained model, losses, times, weights, and predictions
+    """
     
     # Store overall metrics for pretraining
     pretrained_losses = []    # Losses for both autoencoders
@@ -107,9 +121,16 @@ def greedy_layerwise_pretraining(train_loader, test_loader):
 
 
 def supervised_training(model, train_loader, test_loader):
+    """
+    Train a supervised model on the MNIST dataset.
+    @param model: The model to train
+    @param train_loader: DataLoader for the training set
+    @param test_loader: DataLoader for the test set
+    @return: The trained model, accuracy, losses, times, weights, predictions, and true labels
+    """
+    # Define loss and optimizer
     criterion = nn.CrossEntropyLoss()
     optimizer = optim.SGD(model.parameters(), lr=0.01, momentum=0.9)
-    #optimizer = optim.Adam(model.parameters(), lr=0.001)
 
     # Tracking metrics
     supervised_losses = []  # Store training loss for each batch
@@ -124,11 +145,11 @@ def supervised_training(model, train_loader, test_loader):
         start_time = time()
         progress_bar = tqdm(train_loader, desc=f" Supervised training: Epoch {epoch+1}/5", leave=True)
         for batch_idx, (data, target) in enumerate(progress_bar):
-            optimizer.zero_grad()
-            output = model(data)
-            loss = criterion(output, target)
-            loss.backward()
-            optimizer.step()
+            optimizer.zero_grad() # Zero out the gradients from the last iteration
+            output = model(data) # Forward pass
+            loss = criterion(output, target) # Calculate the loss
+            loss.backward() # Backward pass
+            optimizer.step() # Update the weights
             
             # Track the loss for this batch
             supervised_losses.append(loss.item())
@@ -148,11 +169,11 @@ def supervised_training(model, train_loader, test_loader):
     with torch.no_grad():
         progress_bar = tqdm(test_loader, desc=" Evaluating supervised model", leave=True)
         for data, target in progress_bar:
-            output = model(data)
-            pred = output.argmax(dim=1, keepdim=True)
-            correct += pred.eq(target.view_as(pred)).sum().item()
-            supervised_preds.extend(pred.view(-1).cpu().numpy())  # Correctly storing class indices
-            true_labels.extend(target.view(-1).cpu().numpy())            
+            output = model(data) # Get the model's prediction
+            pred = output.argmax(dim=1, keepdim=True) # Get the predicted class
+            correct += pred.eq(target.view_as(pred)).sum().item() # Compare with the target
+            supervised_preds.extend(pred.view(-1).cpu().numpy())  # Store predictions
+            true_labels.extend(target.view(-1).cpu().numpy()) # Store true labels 
             
             # Update the progress bar with the number of correct predictions
             progress_bar.set_description(f" Evaluating: {correct}/{len(test_loader.dataset)} correct")
@@ -164,6 +185,12 @@ def supervised_training(model, train_loader, test_loader):
 
 
 def train_baseline_model(train_loader, test_loader):
+    """
+    Train a simple neural network model a the baseline model on the MNIST dataset.
+    @param train_loader: DataLoader for the training set
+    @param test_loader: DataLoader for the test set
+    @return: The accuracy, losses, times, weights, predictions, and true labels
+    """
     # Instantiate a new model
     baseline_model = SimpleNN()  # Same architecture as pre-trained model
 
@@ -185,11 +212,11 @@ def train_baseline_model(train_loader, test_loader):
         progress_bar = tqdm(train_loader, desc=f" Baseline training: Epoch {epoch+1}/5", leave=True)
         # Use tqdm to display the progress of the batches
         for data, target in progress_bar:
-            optimizer.zero_grad()
-            output = baseline_model(data)
-            loss = criterion(output, target)
-            loss.backward()
-            optimizer.step()
+            optimizer.zero_grad() # Zero out the gradients from the last iteration
+            output = baseline_model(data) # Forward pass
+            loss = criterion(output, target) # Calculate the loss
+            loss.backward() #  Backward pass
+            optimizer.step() # Update the weights
             
             # Track the loss for this batch
             baseline_losses.append(loss.item())
