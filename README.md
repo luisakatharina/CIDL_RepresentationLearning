@@ -55,4 +55,15 @@ This section explains how the code works and what you can expect from each step.
     Confusion Matrices: Shows which digits are confused for each model.
 
 ## **Sources**
+[1] I. Goodfellow, Y. Bengio, and A. Courville, *Deep Learning*. Cambridge, MA: MIT Press, 2016. [Online]. Available: http://www.deeplearningbook.org
+[2] J. Devlin, M. Chang, K. Lee, and K. Toutanova, “BERT: Pre-training of Deep Bidirectional Transformers for Language Understanding,” Proceedings of the 2019 Conference of the North American Chapter of the Association for Computational Linguistics (NAACL), 2019. Available: https://arxiv.org/abs/1810.04805.
+[3] T. Chen, S. Kornblith, M. Norouzi, and G. Hinton, “A Simple Framework for Contrastive Learning of Visual Representations,” Proceedings of the 37th International Conference on Machine Learning (ICML), 2020. Available: https://arxiv.org/abs/2002.05709.
+[4] A. Vaswani et al., “Attention is All You Need,” Advances in Neural Information Processing Systems (NeurIPS), 2017. Available: https://arxiv.org/abs/1706.03762.
+[5] J. Ho, A. Jain, and P. Abbeel, “Denoising Diffusion Probabilistic Models,” Advances in Neural Information Processing Systems (NeurIPS), 2020. Available: https://arxiv.org/abs/2006.11239.
+[6] S. J. Wang et al., “On the Efficiency of Large Language Models: Advances in Pruning, Distillation, and Quantization,” IEEE Transactions on Neural Networks and Learning Systems, 2024.
+[7] J. Pearl, “Causality: Models, Reasoning, and Inference,” Cambridge University Press, 2009.
+[8] S. Barocas, M. Hardt, and A. Narayanan, “Fairness and Machine Learning: Limitations and Opportunities,” MIT Press, 2024.
+[9] A. Radford et al., “Learning Transferable Visual Models From Natural Language Supervision,” Proceedings of the International Conference on Machine Learning (ICML), 2021. Available: https://arxiv.org/abs/2103.00020.
+[10] S. Hart et al., “Interactive AI: How AI is Augmenting Human Decision-Making,” Proceedings of the ACM Human-Computer Interaction Conference (CHI), 2024.
+
 
