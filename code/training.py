@@ -18,7 +18,7 @@ def train_autoencoder(autoencoder, dataloader, input_size, layer, epochs=5):
     @return: The losses, times, and weights for each epoch
     """
     criterion = nn.MSELoss()
-    optimizer = optim.SGD(autoencoder.parameters(), lr=0.01, momentum=0.9)
+    optimizer = optim.SGD(autoencoder.parameters(), lr=0.01, momentum=0.9) # Optimizer for training
     
     autoencoder.train()
     layer_losses = []  # Store the loss for each batch
@@ -50,7 +50,6 @@ def train_autoencoder(autoencoder, dataloader, input_size, layer, epochs=5):
         layer_weights.append({k: v.clone() for k, v in autoencoder.state_dict().items()})
 
     return layer_losses, layer_times, layer_weights
-
 
 def greedy_layerwise_pretraining(train_loader, test_loader):
     """

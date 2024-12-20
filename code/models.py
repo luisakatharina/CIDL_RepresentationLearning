@@ -20,7 +20,7 @@ class Autoencoder(nn.Module):
         @param x: The input to the autoencoder.
         @return: The output of the autoencoder.
         """
-        encoded = torch.sigmoid(self.encoder(x)) # Apply the encoder and the sigmoid activation function.
+        encoded = torch.sigmoid(self.encoder(x)) # Apply the encoder and the sigmoid activation function. (relu better)
         decoded = self.decoder(encoded) # Apply the decoder.
         return decoded, encoded
 

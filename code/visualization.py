@@ -6,38 +6,24 @@ import seaborn as sns
 from sklearn.metrics import confusion_matrix
 
 def convert_seconds_to_mmss(seconds):
+    """
+    Convert a number of seconds to a string in the format "mm:ss:msmsms".
+    @param seconds: The number of seconds to convert to a string in the format "mm:ss:msmsms".
+    @return: A string in the format "mm:ss:msmsms" representing the number of seconds.
+    """
     minutes = int(seconds // 60)
-    seconds = int(seconds % 60)
-    milliseconds = int((seconds % 1) * 1000)  # Extract milliseconds
-    return "{:02}:{:02}:{:03}".format(minutes, seconds, milliseconds)
-
-def visualize_weights(model, layer_index=1, n_w=8, n_h=4):
-    """Visualizes weights of the model for the specified layer."""
-    if layer_index == 1:
-        weights = model.layer1.weight.data.view(-1, 28, 28)
-    elif layer_index == 2:
-        weights = model.layer2.weight.data.view(-1, 128, 1)  # Adjust shape accordingly
-    else:
-        return
-
-    fig, axes = plt.subplots(n_h, n_w, figsize=(12, 6))
-    for i, ax in enumerate(axes.flat):
-        if i < weights.shape[0]:
-            ax.imshow(weights[i].cpu(), cmap='viridis')
-        ax.axis('off')
-    plt.show()
-
-def plot_model_performance(final_accuracy, baseline_accuracy):
-    models = ['Final', 'Baseline']
-    accuracies = [final_accuracy, baseline_accuracy]
-    plt.bar(models, accuracies, color=['skyblue', 'tomato'])
-    plt.xlabel('Model Type')
-    plt.ylabel('Accuracy (%)')
-    plt.title('Model Performance Comparison')
-    plt.ylim(0, 100)
-    plt.show()
+    whole_seconds = int(seconds % 60)
+    milliseconds = int((seconds - int(seconds)) * 1000)  # Correctly extract milliseconds from the fractional part
+    return "{:02}:{:02}:{:03}".format(minutes, whole_seconds, milliseconds)
 
 def plot_loss_curves(baseline_losses, pretrained_losses, final_losses):
+    """
+    Plot the training loss curves for the baseline, pretrained, and final models.
+    @param baseline_losses: List of baseline model losses.
+    @param pretrained_losses: List of pretrained model losses.
+    @param final_losses: List of final model losses.
+    output: A plot showing the training loss curves for the three models."""
+
     plt.plot(baseline_losses, label='Baseline Model Loss', color='red')
     plt.plot(pretrained_losses, label='Pretrained Model Loss', color='blue')
     plt.plot(final_losses, label='Final Model Loss', color='green')
@@ -47,21 +33,24 @@ def plot_loss_curves(baseline_losses, pretrained_losses, final_losses):
     plt.legend()
     plt.show()
 
-def plot_accuracy_curves(baseline_accuracy, pretrained_accuracy, final_accuracy):
-    plt.plot(baseline_accuracy, label='Baseline Accuracy', color='red')
-    plt.plot(pretrained_accuracy, label='Pretrained Accuracy', color='blue')
-    plt.plot(final_accuracy, label='Final Accuracy', color='green')
-    plt.xlabel('Epoch')
-    plt.ylabel('Accuracy (%)')
-    plt.title('Test Set Accuracy Over Time')
-    plt.legend()
-    plt.show()
-
 def plot_confusion_matrices(true_labels, baseline_preds, pretrained_preds, final_preds):
+    """
+    Plot confusion matrices for the baseline, pretrained, and final models.
+    @param true_labels: List of true labels.
+    @param baseline_preds: List of baseline model predictions.
+    @param pretrained_preds: List of pretrained model predictions.
+    @param final_preds: List of final model predictions.
+    output: A plot showing the confusion matrices for the three models."""
+
     fig, axes = plt.subplots(1, 3, figsize=(18, 6))
     
     # Create a confusion matrix plot helper
     def create_cm(true, pred, ax, title):
+        """Create a confusion matrix plot.
+        @param true: List of true labels.
+        @param pred: List of predicted labels.
+        @param ax: The axis to plot on.
+        @param title: The title of the plot."""
         cm = confusion_matrix(true, pred)
         sns.heatmap(cm, annot=True, fmt="d", cmap="Blues", ax=ax)
         ax.set_title(title)
@@ -75,6 +64,13 @@ def plot_confusion_matrices(true_labels, baseline_preds, pretrained_preds, final
     plt.show()
 
 def plot_training_time(baseline_times, pretrained_times, final_times):
+    """
+    Plot the training time per epoch for the baseline, pretrained, and final models.
+    @param baseline_times: List of baseline model training times per epoch.
+    @param pretrained_times: List of pretrained model training times per epoch.
+    @param final_times: List of final model training times per epoch.
+    output: A plot showing the training time per epoch for the three models."""
+
     epochs = range(1, len(baseline_times) + 1)
     layerOne_times = pretrained_times[:5]
     layerTwo_times = pretrained_times[5:]
@@ -92,9 +88,10 @@ def visualize_weights_evolution(weights, epochs=[0, 5], layer_index='layer1.weig
     """
     Visualizes how the weights of the model evolve over epochs.
     
-    :param weights: A list of dictionaries containing weight states across epochs.
-    :param epochs: Epoch indices to visualize (e.g., [0, 5] for the first and last epoch).
-    :param layer_index: String key to indicate which layer's weights to visualize (e.g., 'layer1.weight').
+    @param weights: A list of dictionaries containing weight states across epochs.
+    @param epochs: Epoch indices to visualize (e.g., [0, 5] for the first and last epoch).
+    @param layer_index: String key to indicate which layer's weights to visualize (e.g., 'layer1.weight').
+    output: A plot showing the evolution of the weights of the model over epochs.
     """
     # Determine the layout for the plots.
     n_cols = min(len(weights[0][layer_index]), 8)  # Assume a max of 8 weights to visualize
@@ -122,26 +119,15 @@ def visualize_weights_evolution(weights, epochs=[0, 5], layer_index='layer1.weig
     plt.tight_layout()
     plt.show()
 
-def plot_weight_differences(baseline_weights, final_weights):
-    weight_diffs = {layer: (final_weights[layer] - baseline_weights[layer]).flatten().cpu().numpy() 
-                    for layer in baseline_weights}
-    for layer, diffs in weight_diffs.items():
-        plt.hist(diffs, bins=50, color='purple', alpha=0.7)
-        plt.xlabel('Weight Difference')
-        plt.ylabel('Frequency')
-        plt.title(f'Distribution of Weight Differences (Layer {layer})')
-        plt.show()
+
 
 def calculate_digit_accuracies(preds, true_labels):
     """
     Calculate per-digit accuracies for a given set of predictions and ground truth labels.
-    
     Args:
-    - preds (list or array): List of predicted labels.
-    - true_labels (list or array): List of ground-truth labels.
-    
-    Returns:
-    - List of accuracies (percentage) for each digit from 0 to 9.
+    @param preds: List of predicted labels.
+    @param true_labels: List of ground-truth labels.
+    @return: List of per-digit accuracies.
     """
     correct_per_digit = {i: 0 for i in range(10)}
     total_per_digit = {i: 0 for i in range(10)}
@@ -155,12 +141,8 @@ def calculate_digit_accuracies(preds, true_labels):
                   for i in range(10)}
     return list(accuracies.values())
 
-def generate_comparison_table(
-    baseline_accuracy, final_accuracy, 
-    baseline_preds, final_preds, 
-    true_labels, baseline_losses, final_losses, 
-    baseline_training_time, supervised_training_time
-    ):
+def generate_comparison_table( baseline_accuracy, final_accuracy, baseline_preds, final_preds, true_labels, 
+                              baseline_losses, final_losses, baseline_training_time, supervised_training_time):
     """
     Generate a comparison table between baseline and supervised models.
     
@@ -179,11 +161,11 @@ def generate_comparison_table(
     - DataFrame: Pandas DataFrame containing the comparison table.
     """
     
-    # 1️⃣ Per-digit accuracy
+    # Per-digit accuracy
     baseline_digit_accuracies = calculate_digit_accuracies(baseline_preds, true_labels)
     supervised_digit_accuracies = calculate_digit_accuracies(final_preds, true_labels)
     
-    # 2️⃣ Accuracy statistics (mean, std, min, max)
+    # Accuracy statistics (mean, std, min, max)
     baseline_mean_accuracy = np.mean(baseline_digit_accuracies)
     supervised_mean_accuracy = np.mean(supervised_digit_accuracies)
 
@@ -193,16 +175,16 @@ def generate_comparison_table(
     baseline_min, baseline_max = min(baseline_digit_accuracies), max(baseline_digit_accuracies)
     supervised_min, supervised_max = min(supervised_digit_accuracies), max(supervised_digit_accuracies)
 
-    # 3️⃣ Final loss (last recorded loss for each model)
+    # Final loss (last recorded loss for each model)
     baseline_final_loss = baseline_losses[-1] if baseline_losses else 0
     supervised_final_loss = final_losses[-1] if final_losses else 0
 
-    # 4️⃣ Metrics and comparison table
+    # Metrics and comparison table
     metrics = ['Overall Accuracy (%)', 'Accuracy Per Digit', 'Mean Accuracy (Digits)', 
                'Min/Max Accuracy', 'Standard Deviation', 'Variance', 
                'Training Time (s)', 'Loss (Final Value)']
 
-    # 5️⃣ Metric values for each model
+    # Metric values for each model
     baseline_values = [
         round(baseline_accuracy * 100, 2), 
         [round(acc, 2) for acc in baseline_digit_accuracies], 
@@ -225,7 +207,7 @@ def generate_comparison_table(
         round(supervised_final_loss, 4)
     ]
 
-    # 6️⃣ Calculate the differences (Δ)
+    # Calculate the differences (Δ)
     differences = [
         round(supervised_values[0] - baseline_values[0], 2), 
         [s - b for s, b in zip(supervised_values[1], baseline_values[1])], 
@@ -237,7 +219,7 @@ def generate_comparison_table(
         round(baseline_values[7] - supervised_values[7], 4)
     ]
 
-    # 7️⃣ Create the DataFrame
+    # Create the DataFrame
     df = pd.DataFrame({
         'Metric': metrics,
         'Baseline Model': baseline_values,
