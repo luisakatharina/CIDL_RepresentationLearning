@@ -16,22 +16,43 @@ def convert_seconds_to_mmss(seconds):
     milliseconds = int((seconds - int(seconds)) * 1000)  # Correctly extract milliseconds from the fractional part
     return "{:02}:{:02}:{:03}".format(minutes, whole_seconds, milliseconds)
 
-def plot_loss_curves(baseline_losses, pretrained_losses, final_losses):
+import matplotlib.pyplot as plt
+
+def plot_loss_curves(baseline_losses, pretrained_losses_layer1, pretrained_losses_layer2, final_losses):
     """
-    Plot the training loss curves for the baseline, pretrained, and final models.
+    Plot the training loss curves for the baseline, pretrained (layers 1 and 2), and final models.
     @param baseline_losses: List of baseline model losses.
-    @param pretrained_losses: List of pretrained model losses.
+    @param pretrained_losses_layer1: List of layer 1 losses from pretrained model.
+    @param pretrained_losses_layer2: List of layer 2 losses from pretrained model.
     @param final_losses: List of final model losses.
     output: A plot showing the training loss curves for the three models."""
 
-    plt.plot(baseline_losses, label='Baseline Model Loss', color='red')
-    plt.plot(pretrained_losses, label='Pretrained Model Loss', color='blue')
-    plt.plot(final_losses, label='Final Model Loss', color='green')
+    plt.figure(figsize=(10, 6))
+
+    # Plot the baseline model loss (epochs 1 to 5)
+    plt.plot(range(1, 6), baseline_losses, label='Baseline Model Loss', color='red')
+
+    # Plot the pretrained model losses (Layer 1: epochs 1 to 5)
+    plt.plot(range(1, 6), pretrained_losses_layer1, label='Layer 1 Loss', color='orange')
+
+    # Plot the pretrained model losses (Layer 2: epochs 1 to 5)
+    plt.plot(range(1, 6), pretrained_losses_layer2, label='Layer 2 Loss', color='blue')
+
+    # Plot the final model loss (epochs 1 to 5)
+    plt.plot(range(1, 6), final_losses, label='Final Model Loss', color='green')
+
     plt.xlabel('Epoch')
     plt.ylabel('Loss')
     plt.title('Training Loss Over Time')
+
+    # Set x-ticks to show only integer values (whole numbers)
+    plt.xticks(range(1, 6))  # Ensures only epochs 1, 2, 3, 4, 5 are shown
+
     plt.legend()
+    plt.grid(True)
     plt.show()
+
+
 
 def plot_confusion_matrices(true_labels, baseline_preds, pretrained_preds, final_preds):
     """

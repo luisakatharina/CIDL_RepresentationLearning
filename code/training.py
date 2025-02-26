@@ -25,7 +25,10 @@ def train_autoencoder(autoencoder, dataloader, input_size, layer, epochs=5):
     layer_times = []   # Store time for each epoch
     layer_weights = [] # Store model weights after each epoch
 
+    loss_history = []  # Store the loss for each epoch
+
     for epoch in range(epochs):
+        epoch_loss = 0
         start_time = time()  # Start time for epoch
         progress_bar = tqdm(dataloader, desc=f"  Autoencoder {layer} training: Epoch {epoch+1}/{epochs}", leave=True)
 
@@ -38,18 +41,20 @@ def train_autoencoder(autoencoder, dataloader, input_size, layer, epochs=5):
             optimizer.step() # Update the weights
             
             # Track the loss for this batch
+            epoch_loss += loss.item()
             layer_losses.append(loss.item())
             
             # Update the progress bar description to keep track of the current loss
             progress_bar.set_description(f"  Autoencoder {layer} training: Epoch {epoch+1}/{epochs}, Loss: {loss.item():.4f}")
-        
+        avg_loss = epoch_loss / len(dataloader)  # Compute epoch average
+        loss_history.append(avg_loss)  # Store only one value per epoch
         epoch_time = time() - start_time  # Calculate time for this epoch
         layer_times.append(epoch_time)  # Store training time for the epoch
         
         # Store the model weights after each epoch
         layer_weights.append({k: v.clone() for k, v in autoencoder.state_dict().items()})
 
-    return layer_losses, layer_times, layer_weights
+    return loss_history, layer_times, layer_weights
 
 def greedy_layerwise_pretraining(train_loader, test_loader):
     """
@@ -137,10 +142,12 @@ def supervised_training(model, train_loader, test_loader):
     supervised_weights = [] # Store model weights after each epoch
     supervised_preds = []   # Store predictions on the test set
     true_labels = []        # Store true labels on the test set
+    loss_history = []       # Store the loss for each epoch
 
     # Training loop with progress bar
     model.train()
     for epoch in range(5):
+        epoch_loss = 0
         start_time = time()
         progress_bar = tqdm(train_loader, desc=f" Supervised training: Epoch {epoch+1}/5", leave=True)
         for batch_idx, (data, target) in enumerate(progress_bar):
@@ -152,12 +159,15 @@ def supervised_training(model, train_loader, test_loader):
             
             # Track the loss for this batch
             supervised_losses.append(loss.item())
+            epoch_loss += loss.item()
             
             # Update the progress bar description to show current loss
             progress_bar.set_description(f" Supervised training: Epoch {epoch+1}/5, Loss: {loss.item():.4f}")
 
         epoch_time = time() - start_time
         supervised_times.append(epoch_time)
+        avg_loss = epoch_loss / len(train_loader)
+        loss_history.append(avg_loss)
         
         # Track model weights for this epoch (clone the weights to avoid references)
         supervised_weights.append({k: v.clone() for k, v in model.state_dict().items()})
@@ -179,7 +189,7 @@ def supervised_training(model, train_loader, test_loader):
     
     accuracy = 100. * correct / len(test_loader.dataset)
     print(f' Test set: Accuracy: {correct}/{len(test_loader.dataset)} ({accuracy:.2f}%)')
-    return model, accuracy, supervised_losses, supervised_times, supervised_weights, supervised_preds, true_labels
+    return model, accuracy, loss_history, supervised_times, supervised_weights, supervised_preds, true_labels
 
 
 
@@ -203,10 +213,12 @@ def train_baseline_model(train_loader, test_loader):
     baseline_weights = []        # Store model weights after each epoch
     baseline_preds = []          # Store predictions on the test set
     true_labels = []             # Store true labels on the test set
+    loss_history = []            # Store the loss for each epoch
 
     # Standard supervised training loop
     baseline_model.train()
     for epoch in range(5):
+        epoch_loss = 0
         start_time = time()  # Start time for epoch
         progress_bar = tqdm(train_loader, desc=f" Baseline training: Epoch {epoch+1}/5", leave=True)
         # Use tqdm to display the progress of the batches
@@ -218,12 +230,15 @@ def train_baseline_model(train_loader, test_loader):
             optimizer.step() # Update the weights
             
             # Track the loss for this batch
+            epoch_loss += loss.item()
             baseline_losses.append(loss.item())
             progress_bar.set_description(f" Baseline training: Epoch {epoch+1}/5, Loss: {loss.item():.4f}")
 
         epoch_time = time() - start_time  # Calculate time for this epoch
         baseline_times.append(epoch_time)  # Store training time for the epoch
-        
+        avg_loss = epoch_loss / len(train_loader)
+        loss_history.append(avg_loss)
+
         # Track model weights for this epoch (clone the weights to avoid references)
         baseline_weights.append({k: v.clone() for k, v in baseline_model.state_dict().items()})
 
@@ -244,4 +259,4 @@ def train_baseline_model(train_loader, test_loader):
     baseline_accuracy = 100. * correct / len(test_loader.dataset)
     print(f' Baseline model accuracy: {correct}/{len(test_loader.dataset)} ({baseline_accuracy:.2f}%)')
     
-    return baseline_accuracy, baseline_losses, baseline_times, baseline_weights, baseline_preds, true_labels
+    return baseline_accuracy, loss_history, baseline_times, baseline_weights, baseline_preds, true_labels
